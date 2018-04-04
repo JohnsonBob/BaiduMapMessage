@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+        body, html {width: 100%;height: 100%;margin:0;font-family:"微软雅黑";}
+        #allmap{width:100%;height:100%;}
+        p{margin-left:5px; font-size:14px;}
+    </style>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=wedz9edmG7Bsu8TllaNXHhTyB0MMo9CI"></script>
+    <title>添加复杂内容的信息窗口</title>
+</head>
+<body>
+<div id="allmap"></div>
+</body>
+</html>
+<script type="text/javascript">
+    var locationinfo={:json_encode($locationinfo)};  //注意，这里不要用双引号或单引号；
+    // 百度地图API功能
+    var map = new BMap.Map("allmap");
+    map.centerAndZoom('三亚',15);
+    for(i=0; i<locationinfo.length; i++){
+        // console.info(locationinfo[i]);
+        var sContent =
+            "<h4 style='margin:0 0 5px 0;padding:0.2em 0'>"+locationinfo[i].name+"</h4>" +
+            "<img style='float:right;margin:4px' id='imgDemo' src='"+locationinfo[i].image+"' width='139' height='104' title='天安门'/>" +
+            "<p style='margin:0;line-height:1.5;font-size:13px;'>"+"房屋租金："+locationinfo[i].price+"</p>" +
+            "<p style='margin:0;line-height:1.5;font-size:13px;text-indent:2em'>"+locationinfo[i].dsc+"</p>" +
+            "</div>";
+        var point = new BMap.Point(locationinfo[i].lng, locationinfo[i].lat);
+        var marker = new BMap.Marker(point);
+        //var infoWindow = new BMap.InfoWindow(sContent);  // 创建信息窗口对象
+        map.addOverlay(marker);
+        map.enableScrollWheelZoom();   //启用map滚轮放大缩小，默认禁用
+        map.enableContinuousZoom();    //启用地图惯性拖拽，默认禁用
+        addClickHandler(sContent,marker);
+    }
+
+    function addClickHandler(sContent,marker){
+        marker.addEventListener("click",function(e){
+            openInfo(sContent,e)}
+        );
+    }
+    function openInfo(sContent,e) {
+        var p = e.target;
+        var point = new BMap.Point(p.getPosition().lng, p.getPosition().lat);
+        var infoWindow = new BMap.InfoWindow(sContent);  // 创建信息窗口对象
+        map.openInfoWindow(infoWindow, point); //开启信息窗口
+        //infoWindow.redraw();
+        console.log('执行');
+        document.getElementById('imgDemo').onload = function (){
+            infoWindow.redraw();   //防止在网速较慢，图片未加载时，生成的信息框高度比图片的总高度小，导致图片部分被隐藏
+        }
+    }
+
+</script>
